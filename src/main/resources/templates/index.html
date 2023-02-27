@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://thymeleaf.org ">
+<head>
+    <title>TO DO LIST</title>
+    <link rel="shortcut icon" href="/icon.png" type="image/x-png">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="d-flex border border-success" style="background-color: rgb(204,236,208);">
+        <div class="p flex m-1">
+            <img class="rounded-circle" src="../static/icon.png" th:src="@{/icon.png}" th:alt="Logo" width="50" height="50">
+        </div>
+        <div class="p flex-fill text-center m-3">
+            <h3 class="m-0" style="color: green"><--- TO DO LIST ---></h3>
+        </div>
+    </div>
+    <hr/>
+    <div class="p flex-fill text-center m-3">
+        <p class="m-0">Андрей, привет! Спасибо за домашку!</p>
+    </div>
+    <hr/>
+    <table class="table table-bordered table-hover">
+        <thead>
+        <tr>
+            <th>№</th>
+            <th>Описание</th>
+            <th>Дата создания</th>
+            <th>Дата сдачи</th>
+            <th>Дата выполнения</th>
+            <th>Статус выполнения</th>
+            <th>Изменить</th>
+            <th>Удалить</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="task, number : ${tasks}" th:style="${number.odd}? 'font-weight: bold;'">
+            <td th:text="${number.index}+1"></td>
+            <td th:text="${task.description}"></td>
+            <td th:text="${task.createDateForShow}"></td>
+            <td th:text="${task.deadlineDateForShow}"></td>
+            <td th:text="${task.isDone ? task.completionDateForShow : ''}"></td>
+            <td th:text="${task.currentStatus.description}"></td>
+            <td>
+                <form th:method="GET" th:action="@{/change/{id}(id=${task.id})}">
+                    <button type="submit" class="btn btn-primary">Изменить</button>
+                </form>
+            </td>
+            <td>
+                <form th:method="DELETE" th:action="@{/delete/{id}(id=${task.id})}">
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div th:if="${!isUpdated}">
+        <div th:if="${isCreated}" class="card">
+            <form th:action="@{/create}" th:object="${task}" th:method="POST" class="form-control">
+                <div class="card-header">
+                    <h4 class="justify-content-center">Создание задачи</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="mb-3 col-lg-9">
+                            <label for="description" class="form-label">Описание</label>
+                            <textarea class="form-control" id="description" rows="3"
+                                      name="description"  placeholder="Введите описание" th:field="*{description}" required="required"></textarea>
+                            <div class="text text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                        </div>
+                        <div class="row mb-3 col-lg-3">
+                            <div class="mb-3">
+                                <label for="deadlineDate" class="form-label">Дата сдачи</label>
+                                <input type="datetime-local" class="form-control" id="deadlineDate" th:field="*{deadlineDate}" name="deadlineDate">
+                                <div class="text text-danger" th:if="${#fields.hasErrors('deadlineDate')}" th:errors="*{deadlineDate}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+        <hr>
+        <div th:if="${!isCreated}">
+            <form th:action="@{/show-create-form}" th:method="GET">
+                <button type="submit" class="btn btn-primary">Добавить задачу</button>
+            </form>
+        </div>
+        <div th:if="${isCreated}">
+            <form th:action="@{/}" th:method="GET">
+                <button type="submit" class="btn btn-danger">Отменить</button>
+            </form>
+        </div>
+        <hr>
+    </div>
+    <div th:if="${isUpdated}">
+        <div class="card">
+            <form th:action="@{/update/{id}(id=${task.id})}" th:object="${task}" th:method="PUT" class="form-control">
+                <div class="card-header">
+                    <h4 class="justify-content-center">Изменение задачи</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="mb-3 col-lg-9">
+                            <label for="update-description" class="form-label">Описание</label>
+                            <textarea class="form-control" id="update-description" rows="3"
+                                      name="description"  placeholder="Введите описание" th:field="${task.description}" required="required"></textarea>
+                            <div class="text text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                        </div>
+                        <div class="row mb-3 col-lg-3">
+                            <div class="mb-3">
+                                <label for="update-deadlineDate" class="form-label">Дата сдачи</label>
+                                <input type="datetime-local" class="form-control" id="update-deadlineDate" th:value="${task.deadlineDate}" name="deadlineDate">
+                                <div class="text text-danger" th:if="${#fields.hasErrors('deadlineDate')}" th:errors="*{deadlineDate}"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="update-isDone" class="form-label">Статус выполнения</label>
+                                <input type="checkbox" id="update-isDone" name="isDone" th:checked="${task.isDone}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">Сохранить изменение</button>
+                </div>
+            </form>
+        </div>
+        <hr>
+        <div>
+            <form th:action="@{/}" th:method="GET">
+                <button type="submit" class="btn btn-danger">Отменить</button>
+            </form>
+        </div>
+        <hr>
+    </div>
+    <footer>
+        <div class="row">
+            <div class="col-md-6">
+                <p>Copyright &copy; 2023 Homework HH</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <a href="http://localhost:8080/swagger-ui.html" class="text-dark" target="_blank">Swagger</a>
+                <span class="text-muted mx-2">|</span>
+                <a href="http://localhost:8080/h2" class="text-dark" target="_blank">Database H2</a>
+            </div>
+        </div>
+    </footer>
+</div>
+</body>
+</html>

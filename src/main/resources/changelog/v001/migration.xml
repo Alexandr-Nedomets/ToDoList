@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="create_table_task" author ="Alexander Nedomets">
+        <createTable tableName="task">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="is_done" type="BOOL" defaultValue="false">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="create_date" type="DATETIME" defaultValue="now()">
+                <constraints nullable="false" />
+            </column>
+            <column name="deadline_date" type="DATETIME">
+                <constraints nullable="false" />
+            </column>
+            <column name="completion_date" type="DATETIME">
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create_table_task_status" author ="Alexander Nedomets">
+        <createTable tableName="task_status">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="name" type="VARCHAR(50)">
+                <constraints unique="true" nullable="false" />
+            </column>
+            <column name="description" type="VARCHAR(100)">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="add_data_in_table_task_status" author="Alexander Nedomets">
+        <insert tableName="task_status">
+            <column name="name" value="CREATED"/>
+            <column name="description" value="Создана"/>
+        </insert>
+        <insert tableName="task_status">
+            <column name="name" value="IN_PROGRESS"/>
+            <column name="description" value="В работе"/>
+        </insert>
+        <insert tableName="task_status">
+            <column name="name" value="COMPLETED_ON_TIME"/>
+            <column name="description" value="Завершена вовремя"/>
+        </insert>
+        <insert tableName="task_status">
+            <column name="name" value="COMPLETED_LATE"/>
+            <column name="description" value="Завершена с опозданием"/>
+        </insert>
+        <insert tableName="task_status">
+            <column name="name" value="EXPIRED"/>
+            <column name="description" value="Просрочена"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="create_table_task_status_history" author ="Alexander Nedomets">
+        <createTable tableName="task_status_history">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="create_date" type="DATETIME" defaultValue="now()">
+                <constraints nullable="false" />
+            </column>
+            <column name="task_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="task_status_id" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="add_data_in_table_task" author="Alexander Ned">
+        <insert tableName="task">
+            <column name="is_done" value="true"/>
+            <column name="description" value="Пробежка на залив"/>
+            <column name="create_date" value="2023-01-11T12:35"/>
+            <column name="deadline_date" value="2023-01-14T14:55"/>
+            <column name="completion_date" value="2023-01-17T12:23"/>
+        </insert>
+        <insert tableName="task_status_history">
+            <column name="task_id" valueComputed="(select id from task where description = 'Пробежка на залив')"/>
+            <column name="task_status_id" valueComputed="(select id from task_status where name = 'CREATED')"/>
+            <column name="create_date" value="2023-01-14T12:35"/>
+        </insert>
+        <insert tableName="task_status_history">
+            <column name="task_id" valueComputed="(select id from task where description = 'Пробежка на залив')"/>
+            <column name="task_status_id" valueComputed="(select id from task_status where name = 'IN_PROGRESS')"/>
+            <column name="create_date" value="2023-01-14T12:35"/>
+        </insert>
+        <insert tableName="task_status_history">
+            <column name="task_id" valueComputed="(select id from task where description = 'Пробежка на залив')"/>
+            <column name="task_status_id" valueComputed="(select id from task_status where name = 'COMPLETED_LATE')"/>
+            <column name="create_date" value="2023-01-17T12:23"/>
+        </insert>
+
+        <insert tableName="task">
+            <column name="is_done" value="false"/>
+            <column name="description" value="Написать CRUD приложение"/>
+            <column name="create_date" value="2023-02-02T12:35"/>
+            <column name="deadline_date" value="2023-02-28T23:55"/>
+            <column name="completion_date" value="2023-01-15T12:23"/>
+        </insert>
+        <insert tableName="task_status_history">
+            <column name="task_id" valueComputed="(select id from task where description = 'Написать CRUD приложение')"/>
+            <column name="task_status_id" valueComputed="(select id from task_status where name = 'CREATED')"/>
+            <column name="create_date" value="2023-02-02T12:35"/>
+        </insert>
+        <insert tableName="task_status_history">
+            <column name="task_id" valueComputed="(select id from task where description = 'Написать CRUD приложение')"/>
+            <column name="task_status_id" valueComputed="(select id from task_status where name = 'IN_PROGRESS')"/>
+            <column name="create_date" value="2023-02-02T13:36"/>
+        </insert>
+
+        <insert tableName="task">
+            <column name="is_done" value="false"/>
+            <column name="description" value="Сделать дз по многопоточности"/>
+            <column name="create_date" value="2023-01-01T12:35"/>
+            <column name="deadline_date" value="2023-01-10T23:55"/>
+        </insert>
+        <insert tableName="task_status_history">
+            <column name="task_id" valueComputed="(select id from task where description = 'Сделать дз по многопоточности')"/>
+            <column name="task_status_id" valueComputed="(select id from task_status where name = 'CREATED')"/>
+            <column name="create_date" value="2023-02-02T12:35"/>
+        </insert>
+        <insert tableName="task_status_history">
+            <column name="task_id" valueComputed="(select id from task where description = 'Сделать дз по многопоточности')"/>
+            <column name="task_status_id" valueComputed="(select id from task_status where name = 'IN_PROGRESS')"/>
+            <column name="create_date" value="2023-02-02T13:36"/>
+        </insert>
+        <insert tableName="task_status_history">
+            <column name="task_id" valueComputed="(select id from task where description = 'Сделать дз по многопоточности')"/>
+            <column name="task_status_id" valueComputed="(select id from task_status where name = 'EXPIRED')"/>
+            <column name="create_date" value="2023-01-11T23:55"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
