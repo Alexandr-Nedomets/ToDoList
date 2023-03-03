@@ -38,4 +38,6 @@ public class TaskRequest {
   @ApiModelProperty(value = "Дата выполнения задачи", name = "completionDate", dataType = "LocalDateTime", example = "2021-11-23T15:45", position = 4)
   private LocalDateTime completionDate;
 
+  private String currentStatus;
+
 }

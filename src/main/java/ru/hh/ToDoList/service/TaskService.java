@@ -2,9 +2,9 @@ package ru.hh.ToDoList.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.hh.ToDoList.entity.Task;
 import ru.hh.ToDoList.enumeration.TaskStatusEnum;
 import ru.hh.ToDoList.exception.NotFoundException;
@@ -39,21 +39,38 @@ public class TaskService {
 
   @Transactional
   public Task save(Task task) {
-    Task save = taskRepository.save(task);
-    taskStatusHistoryService.write(task, TaskStatusEnum.CREATED);
-    taskStatusHistoryService.write(task, TaskStatusEnum.IN_PROGRESS);
-    return save;
+    task.setCurrentStatus(TaskStatusEnum.IN_PROGRESS);
+    task = taskRepository.save(task);
+    taskStatusHistoryService.save(task);
+    return task;
   }
 
   @Transactional
   public Task update(Long id, Task task) {
     Task foundTask = findById(id);
     task.setId(id);
+    TaskStatusEnum nextStatus = getNextStatus(task);
+    if (nextStatus != task.getCurrentStatus()) {
+      task.setCurrentStatus(nextStatus);
+      taskStatusHistoryService.save(task);
+    }
     if (task.getIsDone()) {
       task.setCompletionDate(LocalDateTime.now());
     }
-    taskStatusHistoryService.write(task);
     return taskRepository.save(taskMapper.toTaskForUpdate(task, foundTask));
+  }
+
+  private TaskStatusEnum getNextStatus(Task task) {
+    TaskStatusEnum nextStatus = task.getCurrentStatus();
+    LocalDateTime now = LocalDateTime.now();
+    if (task.getIsDone() && !now.isAfter(task.getDeadlineDate())) {
+      nextStatus = TaskStatusEnum.COMPLETED_ON_TIME;
+    } else if (task.getIsDone() && now.isAfter(task.getDeadlineDate())) {
+      nextStatus = TaskStatusEnum.COMPLETED_LATE;
+    } else if (!task.getIsDone() && now.isAfter(task.getDeadlineDate())) {
+      nextStatus = TaskStatusEnum.EXPIRED;
+    }
+    return nextStatus;
   }
 
 }

@@ -1,12 +1,19 @@
 package ru.hh.ToDoList.entity;
 
 import java.time.LocalDateTime;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.JoinFormula;
+import ru.hh.ToDoList.enumeration.TaskStatusEnum;
 
 @Entity
 @Table(name = "task")
@@ -24,9 +31,6 @@ public class Task {
   @Column(name = "create_date", nullable = false)
   private LocalDateTime createDate;
 
-  @Column(name = "is_done", nullable = false, columnDefinition = "boolean default false")
-  private Boolean isDone;
-
   @Column(name = "description", nullable = false)
   private String description;
 
@@ -36,9 +40,11 @@ public class Task {
   @Column(name = "completion_date")
   private LocalDateTime completionDate;
 
-  @ManyToOne
-  @JoinFormula("(SELECT tsh.task_status_id FROM task_status_history AS tsh WHERE tsh.id " +
-      "= (SELECT max(tsh1.id) FROM task_status_history AS tsh1 WHERE tsh1.task_id = id))")
-  private TaskStatus currentStatus;
+  @Enumerated(value = EnumType.STRING)
+  @Column(name = "current_status", nullable = false)
+  private TaskStatusEnum currentStatus;
+
+  @Column(name = "is_done", nullable = false, columnDefinition = "boolean default false")
+  private Boolean isDone;
 
 }

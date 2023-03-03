@@ -45,6 +45,6 @@ public class TaskResponse {
   @ApiModelProperty(value = "Дата выполнения задачи для отображения", name = "completionDateForShow", dataType = "LocalDateTime", example = "23.11.21 15:45", position = 9)
   private LocalDateTime completionDateForShow;
 
-  private TaskStatusResponse currentStatus;
+  private String currentStatus;
 
 }

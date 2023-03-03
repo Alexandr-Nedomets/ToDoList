@@ -44,7 +44,7 @@
             <td th:text="${task.createDateForShow}"></td>
             <td th:text="${task.deadlineDateForShow}"></td>
             <td th:text="${task.isDone ? task.completionDateForShow : ''}"></td>
-            <td th:text="${task.currentStatus.description}"></td>
+            <td th:text="${task.currentStatus}"></td>
             <td>
                 <form th:method="GET" th:action="@{/change/{id}(id=${task.id})}">
                     <button type="submit" class="btn btn-primary">Изменить</button>
@@ -123,6 +123,7 @@
                                 <label for="update-isDone" class="form-label">Статус выполнения</label>
                                 <input type="checkbox" id="update-isDone" name="isDone" th:checked="${task.isDone}"/>
                             </div>
+                            <input type="hidden" class="form-control" th:value="${task.currentStatus}" name="currentStatus">
                         </div>
                     </div>
                 </div>
