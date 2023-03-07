@@ -2,6 +2,7 @@ package ru.hh.ToDoList.mapper;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -33,10 +34,12 @@ public interface TaskMapper {
   Task toTask(TaskRequest taskRequest);
 
   @Named("mapStatus")
-  default String mapCurrentStatus(String currentStatus) {
+  default TaskStatusEnum mapCurrentStatus(String currentStatus) {
+    if (Objects.isNull(currentStatus)) {
+      return TaskStatusEnum.IN_PROGRESS;
+    }
     return Arrays.stream(TaskStatusEnum.values())
         .filter(status -> status.getDescription().equals(currentStatus))
-        .map(TaskStatusEnum::getDescription)
         .findFirst().get();
   }
 

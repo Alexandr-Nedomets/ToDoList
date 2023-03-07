@@ -39,7 +39,6 @@ public class TaskService {
 
   @Transactional
   public Task save(Task task) {
-    task.setCurrentStatus(TaskStatusEnum.IN_PROGRESS);
     task = taskRepository.save(task);
     taskStatusHistoryService.save(task);
     return task;
@@ -61,16 +60,11 @@ public class TaskService {
   }
 
   private TaskStatusEnum getNextStatus(Task task) {
-    TaskStatusEnum nextStatus = task.getCurrentStatus();
-    LocalDateTime now = LocalDateTime.now();
-    if (task.getIsDone() && !now.isAfter(task.getDeadlineDate())) {
-      nextStatus = TaskStatusEnum.COMPLETED_ON_TIME;
-    } else if (task.getIsDone() && now.isAfter(task.getDeadlineDate())) {
-      nextStatus = TaskStatusEnum.COMPLETED_LATE;
-    } else if (!task.getIsDone() && now.isAfter(task.getDeadlineDate())) {
-      nextStatus = TaskStatusEnum.EXPIRED;
+    boolean isExpired = LocalDateTime.now().isAfter(task.getDeadlineDate());
+    if (task.getIsDone()) {
+      return isExpired ? TaskStatusEnum.COMPLETED_LATE : TaskStatusEnum.COMPLETED_ON_TIME;
     }
-    return nextStatus;
+    return isExpired ? TaskStatusEnum.EXPIRED : TaskStatusEnum.IN_PROGRESS;
   }
 
 }
