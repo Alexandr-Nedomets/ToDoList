@@ -29,6 +29,7 @@ public class TaskRestController {
 
   @ApiOperation(value = "Получение всех задач")
   @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE})
+
   public List<TaskResponse> findAll() {
     return taskMapper.toTaskResponse(taskService.findAll());
   }
