@@ -24,6 +24,7 @@ public class MainController {
 
   private final MainService mainService;
 
+  // test comment
   @GetMapping(path = "/")
   public String getMain(Model model) {
     model.addAttribute("task", new TaskRequest());
